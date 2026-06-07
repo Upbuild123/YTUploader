@@ -46,9 +46,13 @@ def render_cta_form(session_date: date) -> Dict[str, Any]:
     _show_previous_title(PROGRAM_BY_KEY["cta"].playlist_id)
     dates = scheduled_dates()
     date_options = [d for d in dates if d <= today_eastern()]
+
     if not date_options:
-        st.error("No past CTA sessions found in the calendar.")
-        return {}
+        st.warning("No past CTA sessions found in the calendar — enter the title manually.")
+        title = st.text_input("YouTube title")
+        if not title:
+            return {}
+        return {"title": title, "session_date": session_date, "recording_type": None}
 
     selected_date = st.selectbox(
         "Session date",
