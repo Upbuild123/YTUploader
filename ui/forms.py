@@ -1,3 +1,4 @@
+import re
 import streamlit as st
 from typing import Dict, Any
 
@@ -141,6 +142,7 @@ def render_morning_rounds_form(session_date: date) -> Dict[str, Any]:
 
 def render_library_live_form(session_date: date) -> Dict[str, Any]:
     _show_previous_title(PROGRAM_BY_KEY["library_live"].playlist_id)
+    titles = []
     with st.spinner("Fetching episode number from YouTube..."):
         try:
             titles = _cached_playlist_titles(PROGRAM_BY_KEY["library_live"].playlist_id)
@@ -149,8 +151,14 @@ def render_library_live_form(session_date: date) -> Dict[str, Any]:
             st.warning(f"Could not fetch episode number from YouTube: {e}")
             episode_num = 1
 
+    prev_ep_title = ""
+    if titles:
+        m = re.match(r"^\d+ - (.+?) \(\d{4}\.\d{2}\.\d{2}\)$", titles[0])
+        if m:
+            prev_ep_title = m.group(1)
+
     episode_num = st.number_input("Episode number", min_value=1, value=episode_num, step=1)
-    ep_title = st.text_input("Episode title")
+    ep_title = st.text_input("Episode title", value=prev_ep_title)
     if not ep_title:
         return {}
     title = _editable_title(build_library_live_title(int(episode_num), ep_title, session_date))
