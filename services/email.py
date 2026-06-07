@@ -23,4 +23,7 @@ def send_error_alert(program: str, attempted_title: str, error: Exception) -> No
         return
 
     resend_lib.api_key = api_key
-    resend_lib.Emails.send({"from": email_from, "to": to_email, "subject": subject, "html": html})
+    try:
+        resend_lib.Emails.send({"from": email_from, "to": to_email, "subject": subject, "html": html})
+    except Exception as e:
+        print(f"[email] Failed to send error alert: {e}")

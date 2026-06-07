@@ -21,6 +21,13 @@ from services.youtube import load_youtube_service, get_playlist_titles
 from config import PROGRAM_BY_KEY
 
 
+@st.cache_data(ttl=300)
+def _cached_playlist_titles(playlist_id: str):
+    """Cache playlist titles for 5 minutes to avoid hitting the API on every re-render."""
+    yt = load_youtube_service()
+    return get_playlist_titles(yt, playlist_id)
+
+
 def render_cta_form(session_date: date) -> Dict[str, Any]:
     dates = scheduled_dates()
     date_options = [d for d in dates if d <= date.today()]
@@ -31,7 +38,7 @@ def render_cta_form(session_date: date) -> Dict[str, Any]:
     selected_date = st.selectbox(
         "Session date",
         options=date_options,
-        format_func=lambda d: d.strftime("%b %-d, %Y"),
+        format_func=lambda d: f"{d.strftime('%b')} {d.day}, {d.year}",
         index=len(date_options) - 1,
     )
     try:
@@ -62,8 +69,7 @@ def render_rwwa_form(session_date: date) -> Dict[str, Any]:
 
     with st.spinner("Checking YouTube for existing parts..."):
         try:
-            yt = load_youtube_service()
-            titles = get_playlist_titles(yt, PROGRAM_BY_KEY["rwwa"].playlist_id)
+            titles = _cached_playlist_titles(PROGRAM_BY_KEY["rwwa"].playlist_id)
             part_num = next_rwwa_part(titles, topic_title)
         except Exception:
             part_num = 1
@@ -86,8 +92,7 @@ def render_bhakti_sastri_form(session_date: date) -> Dict[str, Any]:
 def render_committed_bhakti_form(session_date: date) -> Dict[str, Any]:
     with st.spinner("Fetching session number from YouTube..."):
         try:
-            yt = load_youtube_service()
-            titles = get_playlist_titles(yt, PROGRAM_BY_KEY["committed_bhakti"].playlist_id)
+            titles = _cached_playlist_titles(PROGRAM_BY_KEY["committed_bhakti"].playlist_id)
             session_num = next_committed_bhakti_session(titles)
         except Exception:
             session_num = 1
@@ -103,8 +108,7 @@ def render_committed_bhakti_form(session_date: date) -> Dict[str, Any]:
 def render_morning_rounds_form(session_date: date) -> Dict[str, Any]:
     with st.spinner("Fetching session number from YouTube..."):
         try:
-            yt = load_youtube_service()
-            titles = get_playlist_titles(yt, PROGRAM_BY_KEY["morning_rounds"].playlist_id)
+            titles = _cached_playlist_titles(PROGRAM_BY_KEY["morning_rounds"].playlist_id)
             session_num = next_morning_rounds_session(titles)
         except Exception:
             session_num = 1
@@ -120,8 +124,7 @@ def render_morning_rounds_form(session_date: date) -> Dict[str, Any]:
 def render_library_live_form(session_date: date) -> Dict[str, Any]:
     with st.spinner("Fetching episode number from YouTube..."):
         try:
-            yt = load_youtube_service()
-            titles = get_playlist_titles(yt, PROGRAM_BY_KEY["library_live"].playlist_id)
+            titles = _cached_playlist_titles(PROGRAM_BY_KEY["library_live"].playlist_id)
             episode_num = next_library_live_episode(titles)
         except Exception:
             episode_num = 1
