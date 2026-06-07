@@ -149,15 +149,22 @@ def render_committed_bhakti_form(session_date: date) -> Dict[str, Any]:
 
 def render_morning_rounds_form(session_date: date) -> Dict[str, Any]:
     _show_previous_title(PROGRAM_BY_KEY["morning_rounds"].playlist_id)
+    mr_titles = []
     with st.spinner("Fetching session number from YouTube..."):
         try:
-            titles = _cached_playlist_titles(PROGRAM_BY_KEY["morning_rounds"].playlist_id)
-            session_num = next_morning_rounds_session(titles)
+            mr_titles = _cached_playlist_titles(PROGRAM_BY_KEY["morning_rounds"].playlist_id)
+            session_num = next_morning_rounds_session(mr_titles)
         except Exception:
             session_num = 1
 
+    prev_topic = ""
+    if mr_titles:
+        m = re.match(r"^Morning Rounds - \d+ - (.+?) - Part \d+", mr_titles[0])
+        if m:
+            prev_topic = m.group(1)
+
     session_num = st.number_input("Session number", min_value=1, value=session_num, step=1)
-    topic = st.text_input("Topic")
+    topic = st.text_input("Topic", value=prev_topic)
     if not topic:
         return {}
     title = _editable_title(build_morning_rounds_title(int(session_num), topic, session_date))
