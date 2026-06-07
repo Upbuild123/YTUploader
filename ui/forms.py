@@ -4,6 +4,7 @@ from typing import Dict, Any
 
 from programs.cta_calendar import scheduled_dates, lookup_session
 from programs.dates import today_eastern
+from programs.bhakti_sastri_verses import next_bhakti_sastri_verses
 from programs.counters import (
     next_committed_bhakti_session,
     next_morning_rounds_session,
@@ -106,7 +107,12 @@ def render_rwwa_form(session_date: date) -> Dict[str, Any]:
 
 def render_bhakti_sastri_form(session_date: date) -> Dict[str, Any]:
     _show_previous_title(PROGRAM_BY_KEY["bhakti_sastri"].playlist_id)
-    verses = st.text_input("Verses (e.g. 2.1-2.5)")
+    try:
+        bs_titles = _cached_playlist_titles(PROGRAM_BY_KEY["bhakti_sastri"].playlist_id)
+        suggested_verses = next_bhakti_sastri_verses(bs_titles) or ""
+    except Exception:
+        suggested_verses = ""
+    verses = st.text_input("Verses", value=suggested_verses)
     part_str = st.text_input("Part number (leave blank if not needed)")
     part_num = int(part_str) if part_str.strip().isdigit() else None
     if not verses:
