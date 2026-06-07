@@ -89,7 +89,16 @@ def render_cta_form(session_date: date) -> Dict[str, Any]:
 
 def render_rwwa_form(session_date: date) -> Dict[str, Any]:
     _show_previous_title(PROGRAM_BY_KEY["rwwa"].playlist_id)
-    topic_title = st.text_input("Session title")
+    prev_topic = ""
+    try:
+        rwwa_titles = _cached_playlist_titles(PROGRAM_BY_KEY["rwwa"].playlist_id)
+        if rwwa_titles:
+            m = re.match(r"^RWWA - (.+?) - Part \d+", rwwa_titles[0])
+            if m:
+                prev_topic = m.group(1)
+    except Exception:
+        pass
+    topic_title = st.text_input("Session title", value=prev_topic)
     if not topic_title:
         return {}
 
