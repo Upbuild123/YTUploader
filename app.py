@@ -1,6 +1,5 @@
 import base64
 import os
-from datetime import date
 from typing import Optional
 
 import streamlit as st
@@ -22,7 +21,7 @@ if os.path.exists(logo_path):
 st.title("Upbuild Video Uploader")
 
 from config import PROGRAMS, PROGRAM_BY_KEY
-from programs.dates import most_recent_weekday
+from programs.dates import most_recent_weekday, today_eastern
 from ui.forms import FORM_RENDERERS
 from pipeline import run_pipeline
 from services.email import send_error_alert
@@ -34,7 +33,7 @@ default_date = most_recent_weekday(program.scheduled_day)
 session_date = st.date_input(
     "Session date",
     value=default_date,
-    max_value=date.today(),
+    max_value=today_eastern(),
 )
 
 source_type = st.radio("Video source", ["Upload local file", "Google Drive link"])

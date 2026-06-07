@@ -1,8 +1,8 @@
 import streamlit as st
-from datetime import date
 from typing import Dict, Any
 
 from programs.cta_calendar import scheduled_dates, lookup_session
+from programs.dates import today_eastern
 from programs.counters import (
     next_committed_bhakti_session,
     next_morning_rounds_session,
@@ -30,7 +30,7 @@ def _cached_playlist_titles(playlist_id: str):
 
 def render_cta_form(session_date: date) -> Dict[str, Any]:
     dates = scheduled_dates()
-    date_options = [d for d in dates if d <= date.today()]
+    date_options = [d for d in dates if d <= today_eastern()]
     if not date_options:
         st.error("No past CTA sessions found in the calendar.")
         return {}
@@ -126,7 +126,8 @@ def render_library_live_form(session_date: date) -> Dict[str, Any]:
         try:
             titles = _cached_playlist_titles(PROGRAM_BY_KEY["library_live"].playlist_id)
             episode_num = next_library_live_episode(titles)
-        except Exception:
+        except Exception as e:
+            st.warning(f"Could not fetch episode number from YouTube: {e}")
             episode_num = 1
 
     episode_num = st.number_input("Episode number", min_value=1, value=episode_num, step=1)
