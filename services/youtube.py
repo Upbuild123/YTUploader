@@ -1,3 +1,5 @@
+import base64
+import io
 import os
 import pickle
 from typing import Optional, Callable
@@ -14,20 +16,35 @@ SCOPES = [
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def _load_creds_from_secret() -> object:
+    try:
+        import streamlit as st
+        raw = st.secrets["YOUTUBE_TOKEN_B64"]
+        return pickle.loads(base64.b64decode(raw))
+    except Exception:
+        return None
+
+
 def load_youtube_service():
     token_file = os.environ.get("YOUTUBE_TOKEN_FILE", "token.json")
     if not os.path.isabs(token_file):
         token_file = os.path.join(_PROJECT_ROOT, token_file)
-    if not os.path.exists(token_file):
-        raise FileNotFoundError(
-            f"YouTube token not found at {token_file}. Run: python auth_setup.py"
-        )
-    with open(token_file, "rb") as f:
-        creds = pickle.load(f)
+
+    if os.path.exists(token_file):
+        with open(token_file, "rb") as f:
+            creds = pickle.load(f)
+    else:
+        creds = _load_creds_from_secret()
+        if creds is None:
+            raise FileNotFoundError(
+                f"YouTube token not found at {token_file}. Run: python auth_setup.py"
+            )
+
     if creds.expired and creds.refresh_token:
         creds.refresh(Request())
-        with open(token_file, "wb") as f:
-            pickle.dump(creds, f)
+        if os.path.exists(token_file):
+            with open(token_file, "wb") as f:
+                pickle.dump(creds, f)
     return build("youtube", "v3", credentials=creds)
 
 
