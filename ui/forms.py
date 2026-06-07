@@ -21,6 +21,15 @@ from services.youtube import load_youtube_service, get_playlist_titles
 from config import PROGRAM_BY_KEY
 
 
+def _show_previous_title(playlist_id: str) -> None:
+    try:
+        titles = _cached_playlist_titles(playlist_id)
+        if titles:
+            st.caption(f"Previous upload: {titles[0]}")
+    except Exception:
+        pass
+
+
 def _editable_title(generated: str) -> str:
     return st.text_input("YouTube title (edit if needed)", value=generated)
 
@@ -33,6 +42,7 @@ def _cached_playlist_titles(playlist_id: str):
 
 
 def render_cta_form(session_date: date) -> Dict[str, Any]:
+    _show_previous_title(PROGRAM_BY_KEY["cta"].playlist_id)
     dates = scheduled_dates()
     date_options = [d for d in dates if d <= today_eastern()]
     if not date_options:
@@ -67,6 +77,7 @@ def render_cta_form(session_date: date) -> Dict[str, Any]:
 
 
 def render_rwwa_form(session_date: date) -> Dict[str, Any]:
+    _show_previous_title(PROGRAM_BY_KEY["rwwa"].playlist_id)
     topic_title = st.text_input("Session title")
     if not topic_title:
         return {}
@@ -84,6 +95,7 @@ def render_rwwa_form(session_date: date) -> Dict[str, Any]:
 
 
 def render_bhakti_sastri_form(session_date: date) -> Dict[str, Any]:
+    _show_previous_title(PROGRAM_BY_KEY["bhakti_sastri"].playlist_id)
     verses = st.text_input("Verses (e.g. 2.1-2.5)")
     part_str = st.text_input("Part number (leave blank if not needed)")
     part_num = int(part_str) if part_str.strip().isdigit() else None
@@ -94,6 +106,7 @@ def render_bhakti_sastri_form(session_date: date) -> Dict[str, Any]:
 
 
 def render_committed_bhakti_form(session_date: date) -> Dict[str, Any]:
+    _show_previous_title(PROGRAM_BY_KEY["committed_bhakti"].playlist_id)
     with st.spinner("Fetching session number from YouTube..."):
         try:
             titles = _cached_playlist_titles(PROGRAM_BY_KEY["committed_bhakti"].playlist_id)
@@ -110,6 +123,7 @@ def render_committed_bhakti_form(session_date: date) -> Dict[str, Any]:
 
 
 def render_morning_rounds_form(session_date: date) -> Dict[str, Any]:
+    _show_previous_title(PROGRAM_BY_KEY["morning_rounds"].playlist_id)
     with st.spinner("Fetching session number from YouTube..."):
         try:
             titles = _cached_playlist_titles(PROGRAM_BY_KEY["morning_rounds"].playlist_id)
@@ -126,6 +140,7 @@ def render_morning_rounds_form(session_date: date) -> Dict[str, Any]:
 
 
 def render_library_live_form(session_date: date) -> Dict[str, Any]:
+    _show_previous_title(PROGRAM_BY_KEY["library_live"].playlist_id)
     with st.spinner("Fetching episode number from YouTube..."):
         try:
             titles = _cached_playlist_titles(PROGRAM_BY_KEY["library_live"].playlist_id)
