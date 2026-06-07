@@ -6,7 +6,7 @@ from typing import Optional, Callable
 
 from config import PROGRAM_BY_KEY, CTA_DOC_ID
 from services.youtube import load_youtube_service, upload_video
-from services.drive import drive_link_to_file_id, download_drive_file, upload_to_drive
+from services.drive import drive_link_to_file_id, download_drive_file
 from services.docs import update_cta_doc
 
 
@@ -45,10 +45,6 @@ def run_pipeline(
             file_id = drive_link_to_file_id(source)
             progress("Downloading from Google Drive...")
             tmp_path = download_drive_file(file_id)
-
-        if source_type == "local":
-            progress("Uploading to Google Drive...")
-            drive_url = upload_to_drive(tmp_path, source_filename)
 
         progress("Uploading to YouTube (this may take a while for large files)...")
         yt_service = load_youtube_service()
