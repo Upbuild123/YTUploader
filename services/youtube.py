@@ -11,8 +11,13 @@ SCOPES = [
 ]
 
 
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
 def load_youtube_service():
     token_file = os.environ.get("YOUTUBE_TOKEN_FILE", "token.json")
+    if not os.path.isabs(token_file):
+        token_file = os.path.join(_PROJECT_ROOT, token_file)
     if not os.path.exists(token_file):
         raise FileNotFoundError(
             f"YouTube token not found at {token_file}. Run: python auth_setup.py"
