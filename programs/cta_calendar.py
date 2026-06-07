@@ -12,7 +12,36 @@ class CTASession:
 
 
 CTA_CALENDAR: List[CTASession] = [
-    # ── Spring 2026 ──────────────────────────────────────────────────────────
+    # ── Spring 2026 (past) ───────────────────────────────────────────────────
+    CTASession(date(2026, 3, 17), "Spring 2026", "Orientation",
+               "Orientation", []),
+    CTASession(date(2026, 3, 24), "Spring 2026", "S1 Part 1",
+               "Checkmate! The Yoga of Existential Crisis Part I",
+               ["Hari", "Rasanath", "Tzipi"]),
+    CTASession(date(2026, 4, 7),  "Spring 2026", "S1 Part 2",
+               "Checkmate! The Yoga of Existential Crisis Part II",
+               ["Hari", "Rasanath", "Tzipi", "Vipin"]),
+    CTASession(date(2026, 4, 14), "Spring 2026", "S2 Part 1",
+               "Identity: Unveiling the Existence of the Soul Part I",
+               ["Hari", "Rasanath", "Tzipi", "Vipin"]),
+    CTASession(date(2026, 4, 21), "Spring 2026", "S2 Part 2",
+               "Identity: Unveiling the Existence of the Soul Part II",
+               ["Hari", "Rasanath", "Tzipi", "Vipin"]),
+    CTASession(date(2026, 4, 28), "Spring 2026", "S3 Part 1",
+               "Cracking Karma: The Universal Network of Actions Part I",
+               ["Hari", "Rasanath", "Tzipi", "Vipin"]),
+    CTASession(date(2026, 5, 5),  "Spring 2026", "S3 Part 2",
+               "Cracking Karma: The Universal Network of Actions Part II",
+               ["Hari", "Rasanath", "Tzipi", "Vipin"]),
+    CTASession(date(2026, 5, 12), "Spring 2026", "S4 Part 1",
+               "Where's My Mind?: Understanding Vedic Psychology Part I",
+               ["Hari", "Rasanath", "Tzipi", "Vipin"]),
+    CTASession(date(2026, 5, 19), "Spring 2026", "S4 Part 2",
+               "Where's My Mind?: Understanding Vedic Psychology Part II",
+               ["Hari", "Rasanath", "Tzipi", "Vipin"]),
+    CTASession(date(2026, 6, 2),  "Spring 2026", "S5 Part 1",
+               "Awakening: Plugging the Mind into the Soul Part I", []),
+    # ── Spring 2026 (upcoming) ───────────────────────────────────────────────
     CTASession(date(2026, 6, 9),  "Spring 2026", "S5 Part 2",
                "Awakening: Plugging the Mind into the Soul Part II", []),
     CTASession(date(2026, 6, 16), "Spring 2026", "S6 Part 1",
