@@ -48,8 +48,13 @@ def render_cta_form(session_date: date) -> Dict[str, Any]:
     date_options = [d for d in dates if d <= today_eastern()]
 
     if not date_options:
-        st.warning("No past CTA sessions found in the calendar — enter the title manually.")
-        title = st.text_input("YouTube title")
+        st.warning("No past CTA sessions found in the calendar — using previous YouTube title as a starting point.")
+        try:
+            yt_titles = _cached_playlist_titles(PROGRAM_BY_KEY["cta"].playlist_id)
+            prev_title = yt_titles[0] if yt_titles else ""
+        except Exception:
+            prev_title = ""
+        title = st.text_input("YouTube title", value=prev_title)
         if not title:
             return {}
         return {"title": title, "session_date": session_date, "recording_type": None}
