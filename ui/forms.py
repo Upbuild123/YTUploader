@@ -21,6 +21,10 @@ from services.youtube import load_youtube_service, get_playlist_titles
 from config import PROGRAM_BY_KEY
 
 
+def _editable_title(generated: str) -> str:
+    return st.text_input("YouTube title (edit if needed)", value=generated)
+
+
 @st.cache_data(ttl=300)
 def _cached_playlist_titles(playlist_id: str):
     """Cache playlist titles for 5 minutes to avoid hitting the API on every re-render."""
@@ -52,7 +56,7 @@ def render_cta_form(session_date: date) -> Dict[str, Any]:
     recording_options = ["Full Group"] + session.facilitators
     recording_type = st.selectbox("Recording type", recording_options)
 
-    title = build_cta_title(session.season, session.session_label, recording_type, selected_date)
+    title = _editable_title(build_cta_title(session.season, session.session_label, recording_type, selected_date))
     return {
         "session_date": selected_date,
         "session_label": session.session_label,
@@ -75,7 +79,7 @@ def render_rwwa_form(session_date: date) -> Dict[str, Any]:
             part_num = 1
 
     part_num = st.number_input("Part number", min_value=1, value=part_num, step=1)
-    title = build_rwwa_title(topic_title, int(part_num), session_date)
+    title = _editable_title(build_rwwa_title(topic_title, int(part_num), session_date))
     return {"title": title, "topic_title": topic_title, "part_num": int(part_num)}
 
 
@@ -85,7 +89,7 @@ def render_bhakti_sastri_form(session_date: date) -> Dict[str, Any]:
     part_num = int(part_str) if part_str.strip().isdigit() else None
     if not verses:
         return {}
-    title = build_bhakti_sastri_title(verses, part_num, session_date)
+    title = _editable_title(build_bhakti_sastri_title(verses, part_num, session_date))
     return {"title": title, "verses": verses, "part_num": part_num}
 
 
@@ -101,7 +105,7 @@ def render_committed_bhakti_form(session_date: date) -> Dict[str, Any]:
     topics = st.text_input("Topics")
     if not topics:
         return {}
-    title = build_committed_bhakti_title(int(session_num), topics, session_date)
+    title = _editable_title(build_committed_bhakti_title(int(session_num), topics, session_date))
     return {"title": title, "session_num": int(session_num), "topics": topics}
 
 
@@ -117,7 +121,7 @@ def render_morning_rounds_form(session_date: date) -> Dict[str, Any]:
     topic = st.text_input("Topic")
     if not topic:
         return {}
-    title = build_morning_rounds_title(int(session_num), topic, session_date)
+    title = _editable_title(build_morning_rounds_title(int(session_num), topic, session_date))
     return {"title": title, "session_num": int(session_num), "topic": topic}
 
 
@@ -134,7 +138,7 @@ def render_library_live_form(session_date: date) -> Dict[str, Any]:
     ep_title = st.text_input("Episode title")
     if not ep_title:
         return {}
-    title = build_library_live_title(int(episode_num), ep_title, session_date)
+    title = _editable_title(build_library_live_title(int(episode_num), ep_title, session_date))
     return {"title": title, "episode_num": int(episode_num), "ep_title": ep_title}
 
 
