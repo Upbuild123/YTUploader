@@ -37,6 +37,7 @@ session_date = st.date_input(
 )
 
 source_type = st.radio("Video source", ["Upload local file", "Google Drive link"])
+privacy_status = st.radio("Privacy", ["Unlisted", "Private"], horizontal=True)
 
 uploaded_file = None
 drive_link = None
@@ -80,6 +81,7 @@ if st.button("Upload to YouTube", disabled=not can_upload, type="primary"):
             source_filename=source_filename,
             session_date=session_date,
             recording_type=form_values.get("recording_type"),
+            privacy_status=privacy_status.lower(),
             on_progress=on_progress,
         )
 

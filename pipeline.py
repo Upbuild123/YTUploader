@@ -24,6 +24,7 @@ def run_pipeline(
     source_filename: str,
     session_date: date,
     recording_type: Optional[str] = None,
+    privacy_status: str = "unlisted",
     on_progress: Optional[Callable] = None,
 ) -> UploadResult:
     def progress(msg: str):
@@ -54,6 +55,7 @@ def run_pipeline(
             title=title,
             description=program.description,
             playlist_id=program.playlist_id,
+            privacy_status=privacy_status,
             on_progress=lambda pct: progress(f"Uploading to YouTube... {int(pct * 100)}%"),
         )
 

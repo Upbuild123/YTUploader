@@ -73,16 +73,17 @@ def upload_video(
     title: str,
     description: str,
     playlist_id: str,
+    privacy_status: str = "unlisted",
     on_progress: Optional[Callable] = None,
 ) -> str:
-    """Upload mp4 to YouTube (unlisted) and add to playlist. Returns YouTube URL."""
+    """Upload mp4 to YouTube and add to playlist. Returns YouTube URL."""
     body = {
         "snippet": {
             "title": title,
             "description": description,
             "categoryId": "27",
         },
-        "status": {"privacyStatus": "unlisted"},
+        "status": {"privacyStatus": privacy_status},
     }
     media = MediaFileUpload(file_path, chunksize=10 * 1024 * 1024, resumable=True)
     request = service.videos().insert(
