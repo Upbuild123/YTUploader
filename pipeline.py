@@ -14,6 +14,7 @@ from services.docs import update_cta_doc
 class UploadResult:
     youtube_url: str
     drive_url: Optional[str] = None
+    doc_warning: Optional[str] = None
 
 
 def run_pipeline(
@@ -59,14 +60,15 @@ def run_pipeline(
             on_progress=lambda pct: progress(f"Uploading to YouTube... {int(pct * 100)}%"),
         )
 
+        doc_warning = None
         if program_key == "cta":
             progress("Updating CTA course calendar...")
             try:
                 update_cta_doc(CTA_DOC_ID, session_date, youtube_url, recording_type)
             except Exception as doc_err:
-                progress(f"Google Doc update failed: {doc_err}. Please update manually.")
+                doc_warning = f"Google Doc update failed: {doc_err}"
 
-        return UploadResult(youtube_url=youtube_url, drive_url=drive_url)
+        return UploadResult(youtube_url=youtube_url, drive_url=drive_url, doc_warning=doc_warning)
 
     finally:
         if tmp_path and os.path.exists(tmp_path):

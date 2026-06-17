@@ -90,6 +90,8 @@ if st.button("Upload to YouTube", disabled=not can_upload, type="primary"):
         st.markdown(f"**YouTube URL:** [{result.youtube_url}]({result.youtube_url})")
         if result.drive_url:
             st.markdown(f"**Drive URL:** [{result.drive_url}]({result.drive_url})")
+        if result.doc_warning:
+            st.warning(f"⚠️ Google Doc not updated — please add the link manually.\n\n{result.doc_warning}")
 
     except Exception as exc:
         progress_placeholder.empty()
