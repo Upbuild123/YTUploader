@@ -29,3 +29,6 @@ def fmt_month_dd_yyyy(d: date) -> str:
 
 def fmt_yyyymmdd_dot(d: date) -> str:
     return d.strftime("%Y.%m.%d")
+
+def fmt_mon_d(d: date) -> str:
+    return f"{d.strftime('%b')} {d.day}"

@@ -3,7 +3,7 @@ from datetime import date
 from typing import Tuple, List
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from programs.dates import fmt_mon_period_dd_yyyy
+from programs.dates import fmt_mon_period_dd_yyyy, fmt_mon_d
 
 DOCS_SCOPES = [
     "https://www.googleapis.com/auth/drive",
@@ -69,7 +69,7 @@ def update_cta_doc(doc_id: str, session_date: date, youtube_url: str, recording_
     """
     service = _get_service()
     doc = service.documents().get(documentId=doc_id).execute()
-    date_str = fmt_mon_period_dd_yyyy(session_date)
+    date_str = fmt_mon_d(session_date)
     is_full_group = recording_type == "Full Group"
     col_index = COL_FULL_GROUP if is_full_group else COL_FACILITATORS
 
