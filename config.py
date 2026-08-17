@@ -1,7 +1,10 @@
+import os
 from dataclasses import dataclass
 from typing import List, Dict
 
 CTA_DOC_ID = "10xcZ9EhROBdzCHbs4MAm9asUWKloYXRDw7qGDBnyqUQ"
+
+_PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 @dataclass(frozen=True)
 class ProgramConfig:
@@ -10,6 +13,7 @@ class ProgramConfig:
     playlist_id: str
     scheduled_day: str
     description: str
+    thumbnail_path: str = ""
 
 
 PROGRAMS: List[ProgramConfig] = [
@@ -43,6 +47,7 @@ PROGRAMS: List[ProgramConfig] = [
             "\U0001f4c5 Join Morning Rounds live: https://upbuild.com/morning-rounds\n\n"
             "Subscribe for new episodes. #MorningRounds #BhaktiYoga #KrishnaConsciousness"
         ),
+        thumbnail_path=os.path.join(_PROJECT_ROOT, "assets", "Srila-Haridas-Thakur-Tulsi.jpg"),
     ),
     ProgramConfig(
         key="cta",

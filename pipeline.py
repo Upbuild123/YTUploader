@@ -5,7 +5,7 @@ from datetime import date
 from typing import Optional, Callable
 
 from config import PROGRAM_BY_KEY, CTA_DOC_ID
-from services.youtube import load_youtube_service, upload_video
+from services.youtube import load_youtube_service, upload_video, set_thumbnail
 from services.drive import drive_link_to_file_id, download_drive_file
 from services.docs import update_cta_doc
 
@@ -50,7 +50,7 @@ def run_pipeline(
 
         progress("Uploading to YouTube (this may take a while for large files)...")
         yt_service = load_youtube_service()
-        youtube_url = upload_video(
+        youtube_url, video_id = upload_video(
             service=yt_service,
             file_path=tmp_path,
             title=title,
@@ -59,6 +59,10 @@ def run_pipeline(
             privacy_status=privacy_status,
             on_progress=lambda pct: progress(f"Uploading to YouTube... {int(pct * 100)}%"),
         )
+
+        if program.thumbnail_path:
+            progress("Setting thumbnail...")
+            set_thumbnail(yt_service, video_id, program.thumbnail_path)
 
         doc_warning = None
         if program_key == "cta":

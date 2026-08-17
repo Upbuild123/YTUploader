@@ -32,8 +32,17 @@ def _show_previous_title(playlist_id: str) -> None:
         pass
 
 
+YOUTUBE_TITLE_MAX_CHARS = 100
+
+
 def _editable_title(generated: str) -> str:
-    return st.text_input("YouTube title (edit if needed)", value=generated)
+    title = st.text_input("YouTube title (edit if needed)", value=generated)
+    remaining = YOUTUBE_TITLE_MAX_CHARS - len(title)
+    if remaining < 0:
+        st.caption(f":red[{-remaining} characters over YouTube's {YOUTUBE_TITLE_MAX_CHARS}-character limit]")
+    else:
+        st.caption(f"{remaining} characters remaining")
+    return title
 
 
 @st.cache_data(ttl=300)

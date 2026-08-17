@@ -75,8 +75,8 @@ def upload_video(
     playlist_id: str,
     privacy_status: str = "unlisted",
     on_progress: Optional[Callable] = None,
-) -> str:
-    """Upload mp4 to YouTube and add to playlist. Returns YouTube URL."""
+) -> "tuple[str, str]":
+    """Upload mp4 to YouTube and add to playlist. Returns (YouTube URL, video ID)."""
     body = {
         "snippet": {
             "title": title,
@@ -107,4 +107,12 @@ def upload_video(
             }
         },
     ).execute()
-    return f"https://www.youtube.com/watch?v={video_id}"
+    return f"https://www.youtube.com/watch?v={video_id}", video_id
+
+
+def set_thumbnail(service, video_id: str, thumbnail_path: str) -> None:
+    """Set a video's custom thumbnail. Requires a phone-verified channel."""
+    service.thumbnails().set(
+        videoId=video_id,
+        media_body=MediaFileUpload(thumbnail_path),
+    ).execute()

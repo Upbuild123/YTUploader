@@ -22,7 +22,7 @@ st.title("Upbuild Video Uploader")
 
 from config import PROGRAMS, PROGRAM_BY_KEY
 from programs.dates import most_recent_weekday, today_eastern
-from ui.forms import FORM_RENDERERS
+from ui.forms import FORM_RENDERERS, YOUTUBE_TITLE_MAX_CHARS
 from pipeline import run_pipeline
 from services.email import send_error_alert
 
@@ -55,7 +55,14 @@ title = form_values.get("title", "")
 if title:
     st.markdown(f"**Preview title:** `{title}`")
 
-can_upload = bool(title) and (uploaded_file is not None or bool(drive_link))
+title_too_long = len(title) > YOUTUBE_TITLE_MAX_CHARS
+if title_too_long:
+    st.error(
+        f"Title is {len(title)} characters — YouTube allows a maximum of "
+        f"{YOUTUBE_TITLE_MAX_CHARS}. Shorten it before uploading."
+    )
+
+can_upload = bool(title) and not title_too_long and (uploaded_file is not None or bool(drive_link))
 if st.button("Upload to YouTube", disabled=not can_upload, type="primary"):
     progress_placeholder = st.empty()
 
