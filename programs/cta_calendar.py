@@ -49,9 +49,9 @@ CTA_CALENDAR: List[CTASession] = [
     CTASession(date(2026, 6, 23), "Spring 2026", "S6 Part 2",
                "Awakening: Plugging the Mind into the Soul - Conclusion Part II", []),
     # ── Fall 2026 ─────────────────────────────────────────────────────────────
-    CTASession(date(2026, 9, 8),  "Fall 2026", "Second Semester Orientation",
+    CTASession(date(2026, 9, 1),  "Fall 2026", "Second Semester Orientation",
                "Second Semester Orientation", []),
-    CTASession(date(2026, 9, 22), "Fall 2026", "S7 Part 1",
+    CTASession(date(2026, 9, 8),  "Fall 2026", "S7 Part 1",
                "Moods and Modes: How the Material World Affects Us Part I",
                ["Hari", "Rasanath", "Tzipi", "Vipin"]),
     CTASession(date(2026, 9, 29), "Fall 2026", "S7 Part 2",
