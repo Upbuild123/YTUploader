@@ -1,8 +1,13 @@
 import re
 import streamlit as st
+from datetime import date
 from typing import Dict, Any
 
 from programs.cta_calendar import scheduled_dates, lookup_session
+from programs.coaching_calendar import (
+    scheduled_dates as coaching_scheduled_dates,
+    lookup_session as coaching_lookup_session,
+)
 from programs.dates import today_eastern
 from programs.bhakti_sastri_verses import next_bhakti_sastri_verses
 from programs.counters import (
@@ -18,6 +23,7 @@ from programs.titles import (
     build_committed_bhakti_title,
     build_morning_rounds_title,
     build_library_live_title,
+    build_coaching_title,
 )
 from services.youtube import load_youtube_service, get_playlist_titles
 from config import PROGRAM_BY_KEY
@@ -205,6 +211,46 @@ def render_library_live_form(session_date: date) -> Dict[str, Any]:
     return {"title": title, "episode_num": int(episode_num), "ep_title": ep_title}
 
 
+def render_coaching_training_form(session_date: date) -> Dict[str, Any]:
+    _show_previous_title(PROGRAM_BY_KEY["coaching_training"].playlist_id)
+    dates = coaching_scheduled_dates()
+    date_options = [d for d in dates if d <= today_eastern()]
+
+    if not date_options:
+        st.warning("No past Coaching Training sessions found in the calendar — using previous YouTube title as a starting point.")
+        try:
+            yt_titles = _cached_playlist_titles(PROGRAM_BY_KEY["coaching_training"].playlist_id)
+            prev_title = yt_titles[0] if yt_titles else ""
+        except Exception:
+            prev_title = ""
+        title = st.text_input("YouTube title", value=prev_title)
+        if not title:
+            return {}
+        return {"title": title, "session_date": session_date}
+
+    selected_date = st.selectbox(
+        "Session date",
+        options=date_options,
+        format_func=lambda d: f"{d.strftime('%b')} {d.day}, {d.year}",
+        index=len(date_options) - 1,
+    )
+    try:
+        session = coaching_lookup_session(selected_date)
+    except KeyError:
+        st.error("Could not find session for selected date.")
+        return {}
+
+    st.info(f"**{session.label}:** {session.topic}")
+
+    title = _editable_title(build_coaching_title(session.label, session.topic, selected_date))
+    return {
+        "session_date": selected_date,
+        "label": session.label,
+        "topic": session.topic,
+        "title": title,
+    }
+
+
 FORM_RENDERERS = {
     "cta": render_cta_form,
     "rwwa": render_rwwa_form,
@@ -212,4 +258,5 @@ FORM_RENDERERS = {
     "committed_bhakti": render_committed_bhakti_form,
     "morning_rounds": render_morning_rounds_form,
     "library_live": render_library_live_form,
+    "coaching_training": render_coaching_training_form,
 }

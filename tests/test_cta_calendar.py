@@ -9,7 +9,7 @@ def test_lookup_spring_session():
     assert s.facilitators == []
 
 def test_lookup_fall_session_with_facilitators():
-    s = lookup_session(date(2026, 9, 22))
+    s = lookup_session(date(2026, 9, 8))
     assert s.season == "Fall 2026"
     assert s.session_label == "S7 Part 1"
     assert "Hari" in s.facilitators
@@ -18,10 +18,10 @@ def test_lookup_fall_session_with_facilitators():
     assert "Vipin" in s.facilitators
 
 def test_lookup_orientation():
-    s = lookup_session(date(2026, 9, 8))
+    s = lookup_session(date(2026, 9, 1))
     assert s.season == "Fall 2026"
     assert s.session_label == "Second Semester Orientation"
-    assert s.facilitators == []
+    assert s.facilitators == ["Hari", "Rasanath", "Tzipi", "Vipin"]
 
 def test_lookup_unknown_date_raises():
     import pytest

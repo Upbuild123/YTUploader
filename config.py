@@ -94,6 +94,13 @@ PROGRAMS: List[ProgramConfig] = [
         description="",
     ),
     ProgramConfig(
+        key="coaching_training",
+        label="Upbuild Coaching Training",
+        playlist_id="PLcGkSc3yTqac",
+        scheduled_day="Thursday",
+        description="",
+    ),
+    ProgramConfig(
         key="committed_bhakti",
         label="Committed Bhakti",
         playlist_id="PL43tb1D5I9UZ9keqCupQFDEil4S6NkzM_",

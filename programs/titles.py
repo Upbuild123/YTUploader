@@ -26,3 +26,7 @@ def build_morning_rounds_title(session_num: int, topic: str, d: date) -> str:
 
 def build_library_live_title(episode_num: int, title: str, d: date) -> str:
     return f"{episode_num} - {title} ({fmt_yyyymmdd_dot(d)})"
+
+
+def build_coaching_title(label: str, topic: str, d: date) -> str:
+    return f"{label}. {topic} ({fmt_yyyymmdd_dot(d)})"
