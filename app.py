@@ -71,8 +71,7 @@ if st.button("Upload to YouTube", disabled=not can_upload, type="primary"):
 
     try:
         if source_type == "Upload local file":
-            file_bytes = uploaded_file.read()
-            source = file_bytes
+            source = uploaded_file
             source_filename = uploaded_file.name
             src_type = "local"
         else:

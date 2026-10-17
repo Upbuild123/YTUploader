@@ -1,4 +1,5 @@
 import os
+import shutil
 import tempfile
 from dataclasses import dataclass
 from datetime import date
@@ -40,8 +41,8 @@ def run_pipeline(
         progress("Preparing file...")
         if source_type == "local":
             tmp = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
-            tmp.write(source)
-            tmp.close()
+            with tmp:
+                shutil.copyfileobj(source, tmp, length=10 * 1024 * 1024)
             tmp_path = tmp.name
         else:
             file_id = drive_link_to_file_id(source)
