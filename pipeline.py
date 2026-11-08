@@ -16,6 +16,7 @@ class UploadResult:
     youtube_url: str
     drive_url: Optional[str] = None
     doc_warning: Optional[str] = None
+    playlist_warning: Optional[str] = None
 
 
 def run_pipeline(
@@ -51,7 +52,7 @@ def run_pipeline(
 
         progress("Uploading to YouTube (this may take a while for large files)...")
         yt_service = load_youtube_service()
-        youtube_url, video_id = upload_video(
+        youtube_url, video_id, playlist_warning = upload_video(
             service=yt_service,
             file_path=tmp_path,
             title=title,
@@ -73,7 +74,12 @@ def run_pipeline(
             except Exception as doc_err:
                 doc_warning = f"Google Doc update failed: {doc_err}"
 
-        return UploadResult(youtube_url=youtube_url, drive_url=drive_url, doc_warning=doc_warning)
+        return UploadResult(
+            youtube_url=youtube_url,
+            drive_url=drive_url,
+            doc_warning=doc_warning,
+            playlist_warning=playlist_warning,
+        )
 
     finally:
         if tmp_path and os.path.exists(tmp_path):

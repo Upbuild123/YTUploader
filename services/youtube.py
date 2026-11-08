@@ -75,8 +75,8 @@ def upload_video(
     playlist_id: str,
     privacy_status: str = "unlisted",
     on_progress: Optional[Callable] = None,
-) -> "tuple[str, str]":
-    """Upload mp4 to YouTube and add to playlist. Returns (YouTube URL, video ID)."""
+) -> "tuple[str, str, Optional[str]]":
+    """Upload mp4 to YouTube and add to playlist. Returns (YouTube URL, video ID, playlist_warning)."""
     body = {
         "snippet": {
             "title": title,
@@ -98,16 +98,22 @@ def upload_video(
             on_progress(status.progress())
 
     video_id = response["id"]
-    service.playlistItems().insert(
-        part="snippet",
-        body={
-            "snippet": {
-                "playlistId": playlist_id,
-                "resourceId": {"kind": "youtube#video", "videoId": video_id},
-            }
-        },
-    ).execute()
-    return f"https://www.youtube.com/watch?v={video_id}", video_id
+    playlist_warning = None
+    try:
+        service.playlistItems().insert(
+            part="snippet",
+            body={
+                "snippet": {
+                    "playlistId": playlist_id,
+                    "resourceId": {"kind": "youtube#video", "videoId": video_id},
+                }
+            },
+        ).execute()
+    except Exception as playlist_err:
+        playlist_warning = (
+            f"Video uploaded but could not be added to the playlist: {playlist_err}"
+        )
+    return f"https://www.youtube.com/watch?v={video_id}", video_id, playlist_warning
 
 
 def set_thumbnail(service, video_id: str, thumbnail_path: str) -> None:
