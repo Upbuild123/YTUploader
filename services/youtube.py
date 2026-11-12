@@ -1,5 +1,6 @@
 import base64
 import io
+import json
 import os
 import pickle
 from typing import Optional, Callable
@@ -14,6 +15,7 @@ SCOPES = [
 
 
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PENDING_PLAYLIST_ADDS_FILE = os.path.join(_PROJECT_ROOT, "pending_playlist_adds.json")
 
 
 def _load_creds_from_secret() -> object:
@@ -46,6 +48,50 @@ def load_youtube_service():
             with open(token_file, "wb") as f:
                 pickle.dump(creds, f)
     return build("youtube", "v3", credentials=creds)
+
+
+def _load_pending_playlist_adds() -> list:
+    if not os.path.exists(_PENDING_PLAYLIST_ADDS_FILE):
+        return []
+    try:
+        with open(_PENDING_PLAYLIST_ADDS_FILE, "r") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def _save_pending_playlist_adds(items: list) -> None:
+    with open(_PENDING_PLAYLIST_ADDS_FILE, "w") as f:
+        json.dump(items, f)
+
+
+def _queue_playlist_add(video_id: str, playlist_id: str) -> None:
+    items = _load_pending_playlist_adds()
+    items.append({"video_id": video_id, "playlist_id": playlist_id})
+    _save_pending_playlist_adds(items)
+
+
+def retry_pending_playlist_adds(service) -> int:
+    """Retry any playlist adds that previously failed (e.g. due to quota). Returns count still pending."""
+    items = _load_pending_playlist_adds()
+    if not items:
+        return 0
+    still_pending = []
+    for item in items:
+        try:
+            service.playlistItems().insert(
+                part="snippet",
+                body={
+                    "snippet": {
+                        "playlistId": item["playlist_id"],
+                        "resourceId": {"kind": "youtube#video", "videoId": item["video_id"]},
+                    }
+                },
+            ).execute()
+        except Exception:
+            still_pending.append(item)
+    _save_pending_playlist_adds(still_pending)
+    return len(still_pending)
 
 
 def get_playlist_titles(service, playlist_id: str):
@@ -110,8 +156,10 @@ def upload_video(
             },
         ).execute()
     except Exception as playlist_err:
+        _queue_playlist_add(video_id, playlist_id)
         playlist_warning = (
-            f"Video uploaded but could not be added to the playlist: {playlist_err}"
+            f"Video uploaded but could not be added to the playlist yet (will retry "
+            f"automatically): {playlist_err}"
         )
     return f"https://www.youtube.com/watch?v={video_id}", video_id, playlist_warning
 

@@ -25,6 +25,12 @@ from programs.dates import most_recent_weekday, today_eastern
 from ui.forms import FORM_RENDERERS, YOUTUBE_TITLE_MAX_CHARS
 from pipeline import run_pipeline
 from services.email import send_error_alert
+from services.youtube import load_youtube_service, retry_pending_playlist_adds
+
+try:
+    retry_pending_playlist_adds(load_youtube_service())
+except Exception:
+    pass
 
 program_label = st.selectbox("Program", [p.label for p in PROGRAMS])
 program = next(p for p in PROGRAMS if p.label == program_label)
