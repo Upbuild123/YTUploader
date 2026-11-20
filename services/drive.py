@@ -1,9 +1,11 @@
+import io
+import json
 import os
 import re
 import tempfile
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
+from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload, MediaIoBaseUpload
 
 DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"]
 
@@ -58,3 +60,52 @@ def upload_to_drive(local_path: str, filename: str) -> str:
         fileId=file["id"], fields="webViewLink", supportsAllDrives=True
     ).execute()
     return result["webViewLink"]
+
+
+QUEUE_FILENAME = "pending_playlist_adds.json"
+
+
+def _find_file_in_folder(service, folder_id: str, filename: str):
+    resp = service.files().list(
+        q=f"name='{filename}' and '{folder_id}' in parents and trashed=false",
+        fields="files(id)",
+        supportsAllDrives=True,
+        includeItemsFromAllDrives=True,
+    ).execute()
+    files = resp.get("files", [])
+    return files[0]["id"] if files else None
+
+
+def read_json_queue(filename: str = QUEUE_FILENAME) -> list:
+    """Read a small JSON queue file from the Upbuild Drive folder. Durable across app restarts."""
+    service = _get_service()
+    folder_id = os.environ["GOOGLE_DRIVE_UPLOADER_FOLDER_ID"]
+    file_id = _find_file_in_folder(service, folder_id, filename)
+    if not file_id:
+        return []
+    request = service.files().get_media(fileId=file_id, supportsAllDrives=True)
+    buf = io.BytesIO()
+    downloader = MediaIoBaseDownload(buf, request)
+    done = False
+    while not done:
+        _, done = downloader.next_chunk()
+    buf.seek(0)
+    raw = buf.read().decode("utf-8").strip()
+    return json.loads(raw) if raw else []
+
+
+def write_json_queue(items: list, filename: str = QUEUE_FILENAME) -> None:
+    """Write a small JSON queue file to the Upbuild Drive folder, creating or updating it."""
+    service = _get_service()
+    folder_id = os.environ["GOOGLE_DRIVE_UPLOADER_FOLDER_ID"]
+    file_id = _find_file_in_folder(service, folder_id, filename)
+    media = MediaIoBaseUpload(
+        io.BytesIO(json.dumps(items).encode("utf-8")), mimetype="application/json"
+    )
+    if file_id:
+        service.files().update(fileId=file_id, media_body=media, supportsAllDrives=True).execute()
+    else:
+        meta = {"name": filename, "parents": [folder_id]}
+        service.files().create(
+            body=meta, media_body=media, fields="id", supportsAllDrives=True
+        ).execute()

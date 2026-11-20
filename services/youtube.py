@@ -1,12 +1,13 @@
 import base64
 import io
-import json
 import os
 import pickle
 from typing import Optional, Callable
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+
+from services.drive import read_json_queue, write_json_queue
 
 SCOPES = [
     "https://www.googleapis.com/auth/youtube.upload",
@@ -15,7 +16,6 @@ SCOPES = [
 
 
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_PENDING_PLAYLIST_ADDS_FILE = os.path.join(_PROJECT_ROOT, "pending_playlist_adds.json")
 
 
 def _load_creds_from_secret() -> object:
@@ -51,24 +51,23 @@ def load_youtube_service():
 
 
 def _load_pending_playlist_adds() -> list:
-    if not os.path.exists(_PENDING_PLAYLIST_ADDS_FILE):
-        return []
     try:
-        with open(_PENDING_PLAYLIST_ADDS_FILE, "r") as f:
-            return json.load(f)
+        return read_json_queue()
     except Exception:
         return []
 
 
 def _save_pending_playlist_adds(items: list) -> None:
-    with open(_PENDING_PLAYLIST_ADDS_FILE, "w") as f:
-        json.dump(items, f)
+    write_json_queue(items)
 
 
 def _queue_playlist_add(video_id: str, playlist_id: str) -> None:
-    items = _load_pending_playlist_adds()
-    items.append({"video_id": video_id, "playlist_id": playlist_id})
-    _save_pending_playlist_adds(items)
+    try:
+        items = _load_pending_playlist_adds()
+        items.append({"video_id": video_id, "playlist_id": playlist_id})
+        _save_pending_playlist_adds(items)
+    except Exception:
+        pass
 
 
 def retry_pending_playlist_adds(service) -> int:
